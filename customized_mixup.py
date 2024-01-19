@@ -11,9 +11,9 @@ from torchvision.transforms.v2._utils import _parse_labels_getter, has_any, is_p
 def customized_mixup(images, labels, num_classes, alpha=1.0, mixup_data_only=False, enlarge_scale=1):
     image_all = []
     label_all = []
-    mixup_fn = MixUp(alpha=alpha, num_classes=num_classes)
-
-    for i in range(enlarge_scale):
+    
+    for i in range(1, enlarge_scale+1):
+        mixup_fn = MixUp(alpha=alpha, roll_num=i, num_classes=num_classes)
         images_mixup, labels_mixup = mixup_fn(images, labels)
         image_all.append(images_mixup)
         label_all.append(labels_mixup)
@@ -30,9 +30,10 @@ def customized_mixup(images, labels, num_classes, alpha=1.0, mixup_data_only=Fal
 
 
 class _BaseMixUpCutMix(Transform):
-    def __init__(self, *, alpha: float = 1.0, num_classes: int, labels_getter="default") -> None:
+    def __init__(self, *, alpha: float = 1.0, num_classes: int, roll_num: int, labels_getter="default") -> None:
         super().__init__()
         self.alpha = float(alpha)
+        self.roll_num = roll_num
         self._dist = torch.distributions.Beta(torch.tensor([alpha]), torch.tensor([alpha]))
 
         self.num_classes = num_classes
@@ -89,7 +90,7 @@ class _BaseMixUpCutMix(Transform):
         label = one_hot(label, num_classes=self.num_classes)
         if not label.dtype.is_floating_point:
             label = label.float()
-        return label.roll(1, 0).mul_(1.0 - lam).add_(label.mul(lam))
+        return label.roll(self.roll_num, 0).mul_(1.0 - lam).add_(label.mul(lam))
 
 
 class MixUp(_BaseMixUpCutMix):
@@ -104,7 +105,7 @@ class MixUp(_BaseMixUpCutMix):
         elif isinstance(inpt, (tv_tensors.Image, tv_tensors.Video)) or is_pure_tensor(inpt):
             self._check_image_or_video(inpt, batch_size=params["batch_size"])
 
-            output = inpt.roll(1, 0).mul_(1.0 - lam).add_(inpt.mul(lam))
+            output = inpt.roll(self.roll_num, 0).mul_(1.0 - lam).add_(inpt.mul(lam))
 
             if isinstance(inpt, (tv_tensors.Image, tv_tensors.Video)):
                 output = tv_tensors.wrap(output, like=inpt)
