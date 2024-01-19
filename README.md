@@ -7,7 +7,7 @@ Examples can be found in [mixup_example.ipynb](mixup_example.ipynb)
 
 `alpha`: alpha for the Beta distribution used for sampling interpolation factors.
 
-`enlarge_scale`: The enlarged scale of the dataset with mixup. We generate augmented `enlarge_scale` images for each image in the training set.
+`enlarge_scale`: The enlarged scale of the dataset with mixup. We generate `enlarge_scale` augmented images for each image in the training set.
 
 `mixup_data_only`: Whether we only use mixup augmented data.
 
