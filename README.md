@@ -1,4 +1,5 @@
 # mixup_tool
+Examples can be found in [mixup_example.ipynb](mixup_example.ipynb)
 ### Usage
 `from customized_mixup import customized_mixup`
 
